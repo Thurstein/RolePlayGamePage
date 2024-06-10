@@ -16,11 +16,15 @@ const goldText = document.querySelector("#goldText");
 const monsterStats = document.querySelector("#monsterStats");
 const monsterName = document.querySelector("#monsterName");
 const monsterHealthText = document.querySelector("#monsterHealth");
+const item1 = document.querySelector("#item1");
+const item2 = document.querySelector("#item2");
+const item3 = document.querySelector("#item3");
+const item4 = document.querySelector("#item4");
 const weapons = [
   { name: 'stick', power: 5 },
-  { name: 'dagger', power: 30 },
-  { name: 'claw hammer', power: 50 },
-  { name: 'sword', power: 100 }
+  { name: 'wood sword', power: 20 },
+  { name: 'iron sword', power: 30 },
+  { name: 'diamond sword', power: 60 }
 ];
 const monsters = [
   {
@@ -30,12 +34,12 @@ const monsters = [
   },
   {
     name: "fanged beast",
-    level: 8,
+    level: 5,
     health: 60
   },
   {
     name: "dragon",
-    level: 20,
+    level: 7,
     health: 300
   }
 ]
@@ -73,7 +77,10 @@ const locations = [
       "images/slime.jpg",
       "images/slime_hit.jpg", 
       "images/beast.jpg", 
+      "images/beast_hit.jpg",
       "images/dragon.jpg",
+      "images/dragon_hit.jpg",
+      "images/miss.jpg"
     ],
     audio: "audio/battle1.mp3"
   },
@@ -129,12 +136,11 @@ function update(location) {
   if (location === locations[3]) {
     if (fighting === 0){
       changeImage(location.image[0]);
-    } else if (fighting === 0 && hit === true){
-      changeImage(location.image[1]);
     } else if (fighting === 1){
       changeImage(location.image[2]);
-    } else {
-      changeImage(location.image[3]);
+    } else if (fighting === 2){
+      changeImage(location.image[4]);
+      changeMusic("audio/dragon.mp3");
     }
   } else {
     changeImage(location.image);
@@ -147,6 +153,7 @@ function goTown() {
 
 function goStore() {
   update(locations[1]);
+  console.log(currentWeapon);
 }
 
 function goCave() {
@@ -174,6 +181,7 @@ function buyWeapon() {
       text.innerText = "You now have a " + newWeapon + ".";
       inventory.push(newWeapon);
       text.innerText += " In your inventory you have: " + inventory;
+      inventoryIcons(weapons[currentWeapon].name);
     } else {
       text.innerText = "You do not have enough gold to buy a weapon.";
     }
@@ -220,12 +228,20 @@ function goFight() {
 }
 
 function attack() {
+  if (fighting === 0) {
+    changeImage(locations[3].image[1]);
+  } else if (fighting === 1) {
+    changeImage(locations[3].image[3]);
+  } else if (fighting === 2) {
+    changeImage(locations[3].image[5]);
+  }
   text.innerText = "The " + monsters[fighting].name + " attacks.";
   text.innerText += " You attack it with your " + weapons[currentWeapon].name + ".";
   health -= getMonsterAttackValue(monsters[fighting].level);
   if (isMonsterHit()) {
     monsterHealth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;    
   } else {
+    changeImage(locations[3].image[locations[3].image.length - 1]);
     text.innerText += " You miss.";
   }
   healthText.innerText = health;
@@ -238,10 +254,6 @@ function attack() {
     } else {
       defeatMonster();
     }
-  }
-  if (Math.random() <= .1 && inventory.length !== 1) {
-    text.innerText += " Your " + inventory.pop() + " breaks.";
-    currentWeapon--;
   }
 }
 
@@ -287,6 +299,17 @@ function restart() {
   goTown();
 }
 
+function inventoryIcons(item){
+    if (item === "stick") {
+      document.getElementById("item1").src = "icon/stick.png";
+    } else if (item === "wood sword") {
+      document.getElementById("item2").src = "icon/wood_sword.png";
+    } else if (item === "iron sword") {
+      document.getElementById("item3").src = "icon/iron_sword.png";
+    } else if (item === "diamond sword") {
+      document.getElementById("item4").src = "icon/diamond_sword.png";
+    }
+  }
 function changeImage(image) {
   document.getElementById("image").src = image;
 }
