@@ -2,7 +2,6 @@ let xp = 0;
 let health = 100;
 let gold = 50;
 let currentWeapon = 0;
-let missing;
 let fighting;
 let monsterHealth;
 let inventory = ["stick"];
@@ -46,21 +45,24 @@ const locations = [
     "button text": ["Go to store", "Go to cave", "Fight dragon"],
     "button functions": [goStore, goCave, fightDragon],
     text: "You are in the town square. You see a sign that says \"Store\".",
-    image: "images/square.jpg"
+    image: "images/square.jpg",
+    audio: "audio/bgm1.mp3"
   },
   {
     name: "store",
     "button text": ["Buy 10 health (10 gold)", "Buy weapon (30 gold)", "Go to town square"],
     "button functions": [buyHealth, buyWeapon, goTown],
     text: "You enter the store.",
-    image: "images/store.jpg"
+    image: "images/store.jpg",
+    audio: "audio/bgm1.mp3"
   },
   {
     name: "cave",
     "button text": ["Fight slime", "Fight fanged beast", "Go to town square"],
     "button functions": [fightSlime, fightBeast, goTown],
     text: "You enter the cave. You see some monsters.",
-    image: "images/cave.jpg"
+    image: "images/cave.jpg",
+    audio: "audio/cave.mp3"
   },
   {
     name: "fight",
@@ -71,36 +73,41 @@ const locations = [
       "images/slime.jpg",
       "images/slime_hit.jpg", 
       "images/beast.jpg", 
-      "images/dragon.jpg"
-    ]
+      "images/dragon.jpg",
+    ],
+    audio: "audio/battle1.mp3"
   },
   {
     name: "kill monster",
     "button text": ["Go to town square", "Go to town square", "Go to town square"],
     "button functions": [goTown, goTown, easterEgg ],
     text: 'The monster screams "Arg!" as it dies. You gain experience points and find gold.',
-    image: "images/win.jpg"
+    image: "images/win.jpg",
+    audio: "audio/win.mp3"
   },
   {
     name: "lose",
     "button text": ["REPLAY?", "REPLAY?", "REPLAY?"],
     "button functions": [restart, restart, restart],
     text: "You die. &#x2620;",
-    image: "images/lose.jpg"
+    image: "images/lose.jpg",
+    audio: "audio/lose.mp3"
   },
   { 
     name: "win", 
     "button text": ["REPLAY?", "REPLAY?", "REPLAY?"], 
     "button functions": [restart, restart, restart], 
     text: "You defeat the dragon! YOU WIN THE GAME! &#x1F389;",
-    image: "images/win.jpg"
+    image: "images/win.jpg",
+    audio: "audio/win.mp3"
   },
   {
     name: "easter egg",
     "button text": ["2", "8", "Go to town square?"],
     "button functions": [pickTwo, pickEight, goTown],
     text: "You find a secret game. Pick a number above. Ten numbers will be randomly chosen between 0 and 10. If the number you choose matches one of the random numbers, you win!",
-    image: "images/1.jpg"
+    image: "images/1.jpg",
+    audio: "audio/bgm1.mp3"
   }
 ];
 
@@ -118,9 +125,12 @@ function update(location) {
   button2.onclick = location["button functions"][1];
   button3.onclick = location["button functions"][2];
   text.innerHTML = location.text;
-  if (location === locations[3] && fightting === 0) {
+  changeMusic(location.audio);
+  if (location === locations[3]) {
     if (fighting === 0){
       changeImage(location.image[0]);
+    } else if (fighting === 0 && hit === true){
+      changeImage(location.image[1]);
     } else if (fighting === 1){
       changeImage(location.image[2]);
     } else {
@@ -210,14 +220,12 @@ function goFight() {
 }
 
 function attack() {
-  missing = false;
   text.innerText = "The " + monsters[fighting].name + " attacks.";
   text.innerText += " You attack it with your " + weapons[currentWeapon].name + ".";
   health -= getMonsterAttackValue(monsters[fighting].level);
   if (isMonsterHit()) {
     monsterHealth -= weapons[currentWeapon].power + Math.floor(Math.random() * xp) + 1;    
   } else {
-    missing = true;
     text.innerText += " You miss.";
   }
   healthText.innerText = health;
@@ -281,6 +289,12 @@ function restart() {
 
 function changeImage(image) {
   document.getElementById("image").src = image;
+}
+
+function changeMusic(audioFile) {
+  var audio = document.getElementById('background-music');
+  audio.src = audioFile;
+  audio.play();
 }
 
 function easterEgg() {
