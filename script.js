@@ -118,7 +118,7 @@ function update(location) {
   button2.onclick = location["button functions"][1];
   button3.onclick = location["button functions"][2];
   text.innerHTML = location.text;
-  if (location === locations[3]){
+  if (location === locations[3] && fightting === 0) {
     if (fighting === 0){
       changeImage(location.image[0]);
     } else if (fighting === 1){
