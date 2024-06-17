@@ -74,6 +74,11 @@ body {
   padding-right: 10px;
 }
 
+#button4 {
+  display:none;
+  margin-top: 5px;
+}
+
 button {
   cursor: pointer;
   color: #0a0a23;

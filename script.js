@@ -1,14 +1,16 @@
+
 let xp = 0;
 let health = 100;
 let gold = 50;
 let currentWeapon = 0;
 let fighting;
 let monsterHealth;
-let inventory = ["stick"];
+let inventory = ["stick","blank","blank","blank"];
 
 const button1 = document.querySelector('#button1');
 const button2 = document.querySelector("#button2");
 const button3 = document.querySelector("#button3");
+const button4 = document.querySelector("#button4");
 const text = document.querySelector("#text");
 const xpText = document.querySelector("#xpText");
 const healthText = document.querySelector("#healthText");
@@ -16,16 +18,19 @@ const goldText = document.querySelector("#goldText");
 const monsterStats = document.querySelector("#monsterStats");
 const monsterName = document.querySelector("#monsterName");
 const monsterHealthText = document.querySelector("#monsterHealth");
-const item1 = document.querySelector("#item1");
-const item2 = document.querySelector("#item2");
-const item3 = document.querySelector("#item3");
-const item4 = document.querySelector("#item4");
+const inventorySpace1 = document.querySelector("#item1");
+const inventorySpace2 = document.querySelector("#item2");
+const inventorySpace3 = document.querySelector("#item3");
+const inventorySpace4 = document.querySelector("#item4");
+let inventorySpaces = [inventorySpace1, inventorySpace2, inventorySpace3, inventorySpace4];
+
 const weapons = [
   { name: 'stick', power: 5 },
   { name: 'wood sword', power: 20 },
   { name: 'iron sword', power: 30 },
   { name: 'diamond sword', power: 60 }
 ];
+
 const monsters = [
   {
     name: "slime",
@@ -87,7 +92,7 @@ const locations = [
   {
     name: "kill monster",
     "button text": ["Go to town square", "Go to town square", "Go to town square"],
-    "button functions": [goTown, goTown, easterEgg ],
+    "button functions": [goTown, goTown, goTown ],
     text: 'The monster screams "Arg!" as it dies. You gain experience points and find gold.',
     image: "images/win.jpg",
     audio: "audio/win.mp3"
@@ -107,14 +112,6 @@ const locations = [
     text: "You defeat the dragon! YOU WIN THE GAME! &#x1F389;",
     image: "images/win.jpg",
     audio: "audio/win.mp3"
-  },
-  {
-    name: "easter egg",
-    "button text": ["2", "8", "Go to town square?"],
-    "button functions": [pickTwo, pickEight, goTown],
-    text: "You find a secret game. Pick a number above. Ten numbers will be randomly chosen between 0 and 10. If the number you choose matches one of the random numbers, you win!",
-    image: "images/1.jpg",
-    audio: "audio/bgm1.mp3"
   }
 ];
 
@@ -122,6 +119,7 @@ const locations = [
 button1.onclick = goStore;
 button2.onclick = goCave;
 button3.onclick = fightDragon;
+button4.onclick = sellWeapon;
 
 function update(location) {
   monsterStats.style.display = "none";
@@ -132,6 +130,15 @@ function update(location) {
   button2.onclick = location["button functions"][1];
   button3.onclick = location["button functions"][2];
   text.innerHTML = location.text;
+
+  // Controlar la visibilidad de button4
+  if (location.name === "store") {
+    button4.style.display = "inline-block";
+  } else {
+    button4.style.display = "none";
+  }
+
+
   changeMusic(location.audio);
   if (location === locations[3]) {
     if (fighting === 0){
@@ -160,6 +167,16 @@ function goCave() {
   update(locations[2]);
 }
 
+function inventoryCount(){
+  let count = 0;
+  for (item of inventory) {
+    if (item!== "blank") {
+      count++;
+    }
+  }
+  return count;
+}
+
 function buyHealth() {
   if (gold >= 10) {
     gold -= 10;
@@ -179,9 +196,8 @@ function buyWeapon() {
       goldText.innerText = gold;
       let newWeapon = weapons[currentWeapon].name;
       text.innerText = "You now have a " + newWeapon + ".";
-      inventory.push(newWeapon);
-      text.innerText += " In your inventory you have: " + inventory;
-      inventoryIcons(weapons[currentWeapon].name);
+      inventory[currentWeapon]=newWeapon;
+      updateInventoryIcons();
     } else {
       text.innerText = "You do not have enough gold to buy a weapon.";
     }
@@ -193,12 +209,12 @@ function buyWeapon() {
 }
 
 function sellWeapon() {
-  if (inventory.length > 1) {
+  if (inventoryCount() > 1) {
     gold += 15;
     goldText.innerText = gold;
-    let currentWeapon = inventory.shift();
-    text.innerText = "You sold a " + currentWeapon + ".";
-    text.innerText += " In your inventory you have: " + inventory;
+    text.innerText = "You sold a " + inventory[currentWeapon-1] + ".";
+    inventory[currentWeapon-1]="blank";
+    updateInventoryIcons();
   } else {
     text.innerText = "Don't sell your only weapon!";
   }
@@ -297,19 +313,21 @@ function restart() {
   healthText.innerText = health;
   xpText.innerText = xp;
   goTown();
+  document.getElementById("item1").src = "icon/stick.png";
+  document.getElementById("item2").src = "icon/blank.png";
+  document.getElementById("item3").src = "icon/blank.png";
+  document.getElementById("item4").src = "icon/blank.png";
 }
 
-function inventoryIcons(item){
-    if (item === "stick") {
-      document.getElementById("item1").src = "icon/stick.png";
-    } else if (item === "wood sword") {
-      document.getElementById("item2").src = "icon/wood_sword.png";
-    } else if (item === "iron sword") {
-      document.getElementById("item3").src = "icon/iron_sword.png";
-    } else if (item === "diamond sword") {
-      document.getElementById("item4").src = "icon/diamond_sword.png";
+function updateInventoryIcons() {
+  for (const item of inventory) {
+    const index = inventory.indexOf(item);
+    if (index !== -1) {
+      inventorySpaces[index].src = "icon/" + item + ".png";
     }
   }
+}
+
 function changeImage(image) {
   document.getElementById("image").src = image;
 }
@@ -318,39 +336,4 @@ function changeMusic(audioFile) {
   var audio = document.getElementById('background-music');
   audio.src = audioFile;
   audio.play();
-}
-
-function easterEgg() {
-  update(locations[7]);
-}
-
-function pickTwo() {
-  pick(2);
-}
-
-function pickEight() {
-  pick(8);
-}
-
-function pick(guess) {
-  const numbers = [];
-  while (numbers.length < 10) {
-    numbers.push(Math.floor(Math.random() * 11));
-  }
-  text.innerText = "You picked " + guess + ". Here are the random numbers:\n";
-  for (let i = 0; i < 10; i++) {
-    text.innerText += numbers[i] + "\n";
-  }
-  if (numbers.includes(guess)) {
-    text.innerText += "Right! You win 20 gold!";
-    gold += 20;
-    goldText.innerText = gold;
-  } else {
-    text.innerText += "Wrong! You lose 10 health!";
-    health -= 10;
-    healthText.innerText = health;
-    if (health <= 0) {
-      lose();
-    }
-  }
 }
