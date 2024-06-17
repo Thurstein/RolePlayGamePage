@@ -26,18 +26,18 @@ body {
   flex-direction: row;
   justify-content: space-around;
   align-items: center;
-  background-color: #745403;
+  background-color: #645645;
   height:80px;
   width:480px;
-  border: 1px solid #0a0a23;
+  border: 5px solid #0a0a23;
   margin: 0px;
 }
 
 .inventory-item{
   background-color: #ffffff;
-  height:50px;
+  height:55px;
   width:100px;
-  border: 1px solid #0a0a23;
+  border: 3px solid #0a0a23;
 }
 
 .box-title{

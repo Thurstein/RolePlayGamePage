@@ -1,7 +1,6 @@
-
 let xp = 0;
 let health = 100;
-let gold = 50;
+let gold = 20;
 let currentWeapon = 0;
 let fighting;
 let monsterHealth;
@@ -42,6 +41,31 @@ const monsters = [
     level: 5,
     health: 60
   },
+  // {
+  //   name: "ogre",
+  //   level: 4,
+  //   health: 80
+  // },
+  // {
+  //   name: "dragon",
+  //   level: 7,
+  //   health: 300
+  // },
+  // {
+  //   name: "goblin",
+  //   level: 3,
+  //   health: 40
+  // },
+  // {
+  //   name: "orc",
+  //   level: 6,
+  //   health: 120
+  // },
+  // {
+  //   name: "giant spider",
+  //   level: 5,
+  //   health: 90
+  // },
   {
     name: "dragon",
     level: 7,
@@ -63,7 +87,7 @@ const locations = [
     "button functions": [buyHealth, buyWeapon, goTown],
     text: "You enter the store.",
     image: "images/store.jpg",
-    audio: "audio/bgm1.mp3"
+    audio: "audio/store.mp3"
   },
   {
     name: "cave",
@@ -137,7 +161,11 @@ function update(location) {
     button4.innerText = `Sell weapon (${getPriceByName(weapons[currentWeapon].name)/2} gold)`;
   }
 
-  // Controlar la visibilidad de button4
+  // Controlar la visibilidad de button
+  if (location.name === "store" && currentWeapon === 3){
+    button2.innerText = 'no more weapons';
+  }
+
   if (location.name === "store") {
     button4.style.display = "inline-block";
   } else {
@@ -157,6 +185,17 @@ function update(location) {
     }
   } else {
     changeImage(location.image);
+  }
+}
+
+function updateInventoryIcons() {
+  for (let i = 0; i < inventory.length; i++) {
+    let item = inventory[i];
+    if (item === "blank") {
+      inventorySpaces[i].src = "icon/blank.png";
+    } else {
+      inventorySpaces[i].src = "icon/" + item + ".png";
+    }
   }
 }
 
@@ -180,17 +219,6 @@ function inventoryCount(){
     }
   }
   return count;
-}
-
-function updateInventoryIcons() {
-  for (let i = 0; i < inventory.length; i++) {
-    let item = inventory[i];
-    if (item === "blank") {
-      inventorySpaces[i].src = "icon/blank.png";
-    } else {
-      inventorySpaces[i].src = "icon/" + item + ".png";
-    }
-  }
 }
 
 function getWeakestWeapon() {
@@ -238,8 +266,13 @@ function buyWeapon() {
       let newWeapon = weapons[currentWeapon].name;
       text.innerText = "You now have a " + newWeapon + ".";
       inventory[currentWeapon]=newWeapon;
-      button2.innerText = `Buy weapon (${getPriceByName(weapons[currentWeapon + 1].name)} gold)`;
+      if (currentWeapon < weapons.length - 1) {
+        button2.innerText = `Buy weapon (${getPriceByName(weapons[currentWeapon + 1].name)} gold)`;
+      } else {
+        button2.innerText = 'no more weapons';
+      }
       updateInventoryIcons();
+      console.log(inventory);
     } else {
       text.innerText = "You do not have enough gold to buy a weapon.";
     }
@@ -346,13 +379,14 @@ function winGame() {
 function restart() {
   xp = 0;
   health = 100;
-  gold = 50;
+  gold = 20;
   currentWeapon = 0;
   inventory = ["stick"];
   goldText.innerText = gold;
   healthText.innerText = health;
   xpText.innerText = xp;
   inventory = ["stick","blank","blank","blank"];
+  updateInventoryIcons();
   goTown();
 }
 
