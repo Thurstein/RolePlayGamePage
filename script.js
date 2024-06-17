@@ -25,10 +25,10 @@ let inventorySpace4 = document.querySelector("#item4");
 let inventorySpaces = [inventorySpace1, inventorySpace2, inventorySpace3, inventorySpace4];
 
 const weapons = [
-  { name: 'stick', power: 5 },
-  { name: 'wood sword', power: 20 },
-  { name: 'iron sword', power: 30 },
-  { name: 'diamond sword', power: 60 }
+  { name: 'stick', power: 5 , price: 10 },
+  { name: 'wood sword', power: 20 , price: 30 },
+  { name: 'iron sword', power: 30 , price: 50 },
+  { name: 'diamond sword', power: 60 , price: 70 },
 ];
 
 const monsters = [
@@ -59,7 +59,7 @@ const locations = [
   },
   {
     name: "store",
-    "button text": ["Buy 10 health (10 gold)", "Buy weapon (30 gold)", "Go to town square"],
+    "button text": ["Buy 10 health (10 gold)", "Buy weapon (30 gold)", "Go to town square", "Sell weapon (5 gold)"],
     "button functions": [buyHealth, buyWeapon, goTown],
     text: "You enter the store.",
     image: "images/store.jpg",
@@ -130,6 +130,12 @@ function update(location) {
   button2.onclick = location["button functions"][1];
   button3.onclick = location["button functions"][2];
   text.innerHTML = location.text;
+
+  // Actualizar el texto del botón "Buy weapon"
+  if (currentWeapon < weapons.length - 1 && location.name === "store") {
+    button2.innerText = `Buy weapon (${getPriceByName(weapons[currentWeapon + 1].name)} gold)`;
+    button4.innerText = `Sell weapon (${getPriceByName(weapons[currentWeapon].name)/2} gold)`;
+  }
 
   // Controlar la visibilidad de button4
   if (location.name === "store") {
@@ -203,6 +209,15 @@ function getWeakestWeapon() {
   return weakestWeapon.name;
 }
 
+function getPriceByName(weaponName) {
+  const weapon = weapons.find(weapon => weapon.name === weaponName);
+  if (weapon) {
+    return weapon.price;
+  } else {
+    return null; // o podrías manejar el caso cuando no se encuentra el arma
+  }
+}
+
 function buyHealth() {
   if (gold >= 10) {
     gold -= 10;
@@ -216,38 +231,31 @@ function buyHealth() {
 
 function buyWeapon() {
   if (currentWeapon < weapons.length - 1) {
-    if (gold >= 30) {
-      gold -= 30;
+    if (gold >= getPriceByName(weapons[currentWeapon + 1].name)) {
       currentWeapon++;
+      gold -= getPriceByName(weapons[currentWeapon].name);
       goldText.innerText = gold;
       let newWeapon = weapons[currentWeapon].name;
       text.innerText = "You now have a " + newWeapon + ".";
       inventory[currentWeapon]=newWeapon;
+      button2.innerText = `Buy weapon (${getPriceByName(weapons[currentWeapon + 1].name)} gold)`;
       updateInventoryIcons();
-      // console.log(currentWeapon);
-      console.log(inventory);
-      // console.log(getWeakestWeapon());
     } else {
       text.innerText = "You do not have enough gold to buy a weapon.";
     }
   } else {
     text.innerText = "You already have the most powerful weapon!";
-    button2.innerText = "Sell weapon for 15 gold";
-    button2.onclick = sellWeapon;
   }
 }
 
 function sellWeapon() {
   if (inventoryCount() > 1) {
-    gold += 15;
+    gold += getPriceByName(getWeakestWeapon())/2;
     goldText.innerText = gold;
-    
     inventory[inventory.indexOf(getWeakestWeapon())]="blank";
-
     text.innerText = "You sold a " + getWeakestWeapon() + ".";
-
+    button4.innerText = `Sell weapon (${getPriceByName(weapons[currentWeapon].name)/2} gold)`;
     updateInventoryIcons();
-    console.log(inventory);
   } else {
     text.innerText = "Don't sell your only weapon!";
   }
