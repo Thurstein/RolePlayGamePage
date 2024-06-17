@@ -18,10 +18,10 @@ const goldText = document.querySelector("#goldText");
 const monsterStats = document.querySelector("#monsterStats");
 const monsterName = document.querySelector("#monsterName");
 const monsterHealthText = document.querySelector("#monsterHealth");
-const inventorySpace1 = document.querySelector("#item1");
-const inventorySpace2 = document.querySelector("#item2");
-const inventorySpace3 = document.querySelector("#item3");
-const inventorySpace4 = document.querySelector("#item4");
+let inventorySpace1 = document.querySelector("#item1");
+let inventorySpace2 = document.querySelector("#item2");
+let inventorySpace3 = document.querySelector("#item3");
+let inventorySpace4 = document.querySelector("#item4");
 let inventorySpaces = [inventorySpace1, inventorySpace2, inventorySpace3, inventorySpace4];
 
 const weapons = [
@@ -160,7 +160,6 @@ function goTown() {
 
 function goStore() {
   update(locations[1]);
-  console.log(currentWeapon);
 }
 
 function goCave() {
@@ -175,6 +174,33 @@ function inventoryCount(){
     }
   }
   return count;
+}
+
+function updateInventoryIcons() {
+  for (let i = 0; i < inventory.length; i++) {
+    let item = inventory[i];
+    if (item === "blank") {
+      inventorySpaces[i].src = "icon/blank.png";
+    } else {
+      inventorySpaces[i].src = "icon/" + item + ".png";
+    }
+  }
+}
+
+function getWeakestWeapon() {
+  // Filtrar el inventario para eliminar los elementos 'blank'
+  const filteredInventory = inventory.filter(item => item !== 'blank');
+
+  // Encontrar los objetos correspondientes en el array weapons
+  const weaponObjects = filteredInventory.map(item => {
+    return weapons.find(weapon => weapon.name === item);
+  });
+
+  // Encontrar el objeto con menor poder
+  const weakestWeapon = weaponObjects.reduce((minWeapon, currentItem) => {
+    return currentItem.power < minWeapon.power ? currentItem : minWeapon;
+  });
+  return weakestWeapon.name;
 }
 
 function buyHealth() {
@@ -198,6 +224,9 @@ function buyWeapon() {
       text.innerText = "You now have a " + newWeapon + ".";
       inventory[currentWeapon]=newWeapon;
       updateInventoryIcons();
+      // console.log(currentWeapon);
+      console.log(inventory);
+      // console.log(getWeakestWeapon());
     } else {
       text.innerText = "You do not have enough gold to buy a weapon.";
     }
@@ -212,9 +241,13 @@ function sellWeapon() {
   if (inventoryCount() > 1) {
     gold += 15;
     goldText.innerText = gold;
-    text.innerText = "You sold a " + inventory[currentWeapon-1] + ".";
-    inventory[currentWeapon-1]="blank";
+    
+    inventory[inventory.indexOf(getWeakestWeapon())]="blank";
+
+    text.innerText = "You sold a " + getWeakestWeapon() + ".";
+
     updateInventoryIcons();
+    console.log(inventory);
   } else {
     text.innerText = "Don't sell your only weapon!";
   }
@@ -275,7 +308,6 @@ function attack() {
 
 function getMonsterAttackValue(level) {
   const hit = (level * 5) - (Math.floor(Math.random() * xp));
-  console.log(hit);
   return hit > 0 ? hit : 0;
 }
 
@@ -312,20 +344,8 @@ function restart() {
   goldText.innerText = gold;
   healthText.innerText = health;
   xpText.innerText = xp;
+  inventory = ["stick","blank","blank","blank"];
   goTown();
-  document.getElementById("item1").src = "icon/stick.png";
-  document.getElementById("item2").src = "icon/blank.png";
-  document.getElementById("item3").src = "icon/blank.png";
-  document.getElementById("item4").src = "icon/blank.png";
-}
-
-function updateInventoryIcons() {
-  for (const item of inventory) {
-    const index = inventory.indexOf(item);
-    if (index !== -1) {
-      inventorySpaces[index].src = "icon/" + item + ".png";
-    }
-  }
 }
 
 function changeImage(image) {
